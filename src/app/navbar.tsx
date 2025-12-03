@@ -26,7 +26,10 @@ export default function Navbar() {
     <nav className="fixed top-0 left-0 right-0 flex justify-between items-center px-4 sm:px-8 lg:px-12 py-3 bg-white shadow-lg z-50">
       {/* Logo/Brand Name */}
       <div className="flex items-center">
-        <Link href="/" className="text-xl font-bold text-gray-900 tracking-tight">
+        <Link
+          href="/"
+          className="text-xl font-bold text-gray-900 tracking-tight"
+        >
           Character Matters
         </Link>
       </div>
@@ -64,23 +67,8 @@ export default function Navbar() {
         </Link>
       </div>
 
-      {/* Mobile Controls (Contact Button and Hamburger Menu) */}
+      {/* Mobile Controls (Hamburger Menu Only) */}
       <div className="md:hidden flex items-center">
-        {/* Mobile Contact Button (Less prominent than desktop version) */}
-        <Link
-          href="#contact"
-          className="
-                        bg-[#853A75] text-white text-sm font-semibold
-                        py-2 px-4 mr-4
-                        rounded-md shadow-lg
-                        transition-colors duration-200
-                        hover:bg-[#6a2e5d]
-                        whitespace-nowrap
-                    "
-        >
-          Contact
-        </Link>
-
         {/* Hamburger/Close Button */}
         <button
           onClick={toggleMenu}
@@ -147,6 +135,24 @@ export default function Navbar() {
               </Link>
             </li>
           ))}
+          {/* Mobile Contact Button in Dropdown */}
+          <li className="pt-2 border-t border-gray-100">
+            <Link
+              href="#contact"
+              onClick={() => setIsOpen(false)} // Close menu on click
+              className="
+                            block w-full text-center
+                            bg-[#853A75] text-white text-base font-semibold
+                            py-3 px-4
+                            rounded-lg shadow-lg
+                            transition-all duration-200
+                            hover:bg-[#6a2e5d] hover:shadow-xl
+                            focus:outline-none focus:ring-2 focus:ring-[#853A75]/50
+                        "
+            >
+              Contact
+            </Link>
+          </li>
         </ul>
       </div>
     </nav>
