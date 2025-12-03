@@ -6,16 +6,26 @@ const MARRIAGE_FAMILY_IMG = "/ministry2.png";
 const BIBLE_STUDY_IMG = "/ministry3.png";
 
 // Component to render a service card based on the image design
-const ServiceCard = ({ title, description, includedItems, imageSrc }: { title: string; description: string; includedItems: string[]; imageSrc: string }) => {
+const ServiceCard = ({
+  title,
+  description,
+  includedItems,
+  imageSrc,
+}: {
+  title: string;
+  description: string;
+  includedItems: string[];
+  imageSrc: string;
+}) => {
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-shadow duration-300 flex flex-col h-full">
       {/* Image Section */}
       <div className="relative h-48 w-full">
-        <Image 
-          src={imageSrc} 
-          alt={title} 
-          layout="fill" 
-          objectFit="cover" 
+        <Image
+          src={imageSrc}
+          alt={title}
+          layout="fill"
+          objectFit="cover"
           className="w-full h-full"
         />
       </div>
@@ -44,9 +54,12 @@ const ServiceCard = ({ title, description, includedItems, imageSrc }: { title: s
         </ul>
 
         {/* Schedule Button - Maroon background, rounded, matching the website theme */}
-        <button className="w-full px-6 py-3 text-sm font-semibold rounded-lg bg-[#853A75] text-white hover:bg-[#6a2e5d] transition-colors shadow-md mt-auto">
+        <a
+          href="#contact"
+          className="block w-full text-center px-6 py-3 text-sm font-semibold rounded-lg bg-[#853A75] text-white hover:bg-[#6a2e5d] transition-colors shadow-md mt-auto"
+        >
           Schedule Session
-        </button>
+        </a>
       </div>
     </div>
   );
