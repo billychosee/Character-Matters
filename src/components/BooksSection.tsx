@@ -1,9 +1,22 @@
+"use client";
+
 import Image from "next/image";
+import { useCart } from "../context/CartContext";
 
 // Placeholder for the book cover image. Replace with the actual path.
 const BOOK_COVER_SRC = "/character-matters-cover.png";
 
 export default function BooksSection() {
+  const { addItem } = useCart();
+
+  const handleAddToCart = () => {
+    addItem({
+      id: "character-matters-book",
+      title: "CHARACTER MATTERS",
+      price: 20.99,
+      image: BOOK_COVER_SRC,
+    });
+  };
   // The content for the left purple block is pulled from the image (Hero Section text reused)
   const bookDescription =
     "A powerful and practical guide to understanding the importance of character in the Christian walk. This book helps believers align their daily choices, attitudes, and lifestyle with the heart of Christ.";
@@ -41,7 +54,10 @@ export default function BooksSection() {
               <p className="text-sm text-gray-200 mb-6">200 PAGES</p>
 
               {/* Add to Cart Button */}
-              <button className="flex items-center justify-center w-full md:w-auto px-8 py-3 rounded-lg bg-[#6a2e5d] text-white text-lg font-semibold hover:bg-[#5a254f] transition-colors shadow-xl">
+              <button
+                onClick={handleAddToCart}
+                className="flex items-center justify-center w-full md:w-auto px-8 py-3 rounded-lg bg-[#6a2e5d] text-white text-lg font-semibold hover:bg-[#5a254f] transition-colors shadow-xl"
+              >
                 {/* Shopping cart icon from lucide-react (assuming it's installed) */}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -97,4 +113,3 @@ export default function BooksSection() {
     </section>
   );
 }
-

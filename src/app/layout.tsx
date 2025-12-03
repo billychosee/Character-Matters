@@ -3,6 +3,7 @@ import { Montserrat } from "next/font/google";
 import "./globals.css";
 import Navbar from "./navbar";
 import SmoothScrollHandler from "@/components/SmoothScrollHandler";
+import { CartProvider } from "../context/CartContext";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -22,9 +23,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${montserrat.variable} antialiased`}>
-        <SmoothScrollHandler />
-        <Navbar />
-        {children}
+        <CartProvider>
+          <SmoothScrollHandler />
+          <Navbar />
+          {children}
+        </CartProvider>
       </body>
     </html>
   );

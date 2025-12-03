@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useCart } from "../context/CartContext";
+import Cart from "../components/Cart";
 
 // The Navbar component is now the default export.
 // This component uses standard <a> tags for navigation links,
@@ -9,9 +11,17 @@ import Link from "next/link";
 export default function Navbar() {
   // State for managing the mobile menu's open/closed status
   const [isOpen, setIsOpen] = useState(false);
+  // State for managing the cart's open/closed status
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   // Toggle function for the mobile menu
   const toggleMenu = () => setIsOpen(!isOpen);
+
+  // Toggle function for the cart
+  const toggleCart = () => setIsCartOpen(!isCartOpen);
+
+  // Get cart item count
+  const { state } = useCart();
 
   // List of navigation items for easy mapping
   const navItems = [
@@ -48,8 +58,44 @@ export default function Navbar() {
         ))}
       </ul>
 
-      {/* Desktop Contact Button (Hidden on mobile) */}
-      <div className="hidden md:block">
+      {/* Desktop Cart and Contact Button (Hidden on mobile) */}
+      <div className="hidden md:flex items-center space-x-4">
+        {/* Cart Button */}
+        <button
+          onClick={toggleCart}
+          className="
+                        relative
+                        text-[#853A75] hover:text-[#6a2e5d]
+                        p-2
+                        rounded-lg
+                        transition-all duration-300
+                        hover:bg-gray-100
+                        focus:outline-none focus:ring-2 focus:ring-[#853A75]/50
+                    "
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="9" cy="21" r="1" />
+            <circle cx="20" cy="21" r="1" />
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+          </svg>
+          {state.itemCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+              {state.itemCount > 99 ? "99+" : state.itemCount}
+            </span>
+          )}
+        </button>
+
+        {/* Contact Button */}
         <Link
           href="#contact"
           className="
@@ -138,8 +184,51 @@ export default function Navbar() {
               </Link>
             </li>
           ))}
-          {/* Mobile Contact Button in Dropdown */}
-          <li className="pt-2 border-t border-gray-100">
+          {/* Mobile Cart and Contact Button in Dropdown */}
+          <li className="pt-2 border-t border-gray-100 space-y-2">
+            {/* Mobile Cart Button */}
+            <button
+              onClick={() => {
+                toggleCart();
+                setTimeout(() => setIsOpen(false), 100);
+              }}
+              className="
+                            flex items-center justify-center w-full
+                            text-[#853A75] hover:text-[#6a2e5d] 
+                            text-base font-semibold
+                            py-3 px-4
+                            rounded-lg shadow-lg
+                            transition-all duration-200
+                            hover:bg-gray-100
+                            focus:outline-none focus:ring-2 focus:ring-[#853A75]/50
+                            relative
+                        "
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="mr-2"
+              >
+                <circle cx="9" cy="21" r="1" />
+                <circle cx="20" cy="21" r="1" />
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+              </svg>
+              Cart ({state.itemCount})
+              {state.itemCount > 0 && (
+                <span className="absolute top-2 right-4 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {state.itemCount > 99 ? "99+" : state.itemCount}
+                </span>
+              )}
+            </button>
+
+            {/* Mobile Contact Button */}
             <Link
               href="#contact"
               onClick={() => {
@@ -161,6 +250,9 @@ export default function Navbar() {
           </li>
         </ul>
       </div>
+
+      {/* Shopping Cart Sidebar */}
+      <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </nav>
   );
 }
