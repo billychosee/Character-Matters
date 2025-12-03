@@ -128,7 +128,10 @@ export default function Navbar() {
             <li key={item.label}>
               <Link
                 href={item.href}
-                onClick={() => setIsOpen(false)} // Close menu on click
+                onClick={() => {
+                  // Small delay to allow smooth scroll to start before closing menu
+                  setTimeout(() => setIsOpen(false), 100);
+                }}
                 className="block w-full text-lg text-gray-700 font-medium py-2 px-3 hover:bg-gray-50 rounded-lg transition-colors duration-200 hover:text-[#853A75]"
               >
                 {item.label}
@@ -139,7 +142,10 @@ export default function Navbar() {
           <li className="pt-2 border-t border-gray-100">
             <Link
               href="#contact"
-              onClick={() => setIsOpen(false)} // Close menu on click
+              onClick={() => {
+                // Small delay to allow smooth scroll to start before closing menu
+                setTimeout(() => setIsOpen(false), 100);
+              }}
               className="
                             block w-full text-center
                             bg-[#853A75] text-white text-base font-semibold
