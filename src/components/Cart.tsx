@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useCart } from "../context/CartContext";
 
 interface CartProps {
@@ -10,15 +12,23 @@ interface CartProps {
 
 export default function Cart({ isOpen, onClose }: CartProps) {
   const { state, updateQuantity, removeItem } = useCart();
+  const router = useRouter();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [imageErrors, setImageErrors] = useState<{ [key: string]: boolean }>(
+    {}
+  );
 
   if (!isOpen) return null;
 
   const handleCheckout = () => {
     setIsCheckingOut(true);
     onClose();
-    // Navigate to checkout page
-    window.location.href = "/checkout";
+    // Navigate to checkout page using Next.js router for better UX
+    router.push("/checkout");
+  };
+
+  const handleImageError = (itemId: string) => {
+    setImageErrors((prev) => ({ ...prev, [itemId]: true }));
   };
 
   return (
@@ -30,7 +40,7 @@ export default function Cart({ isOpen, onClose }: CartProps) {
       />
 
       {/* Cart Panel */}
-      <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-xl">
+      <div className="absolute right-0 h-full w-full max-w-md bg-white shadow-xl pt-16 md:pt-20">
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b bg-gray-50">
@@ -78,11 +88,34 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                   >
                     {/* Product Image */}
                     <div className="shrink-0">
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        className="w-16 h-20 object-cover rounded"
-                      />
+                      {imageErrors[item.id] ? (
+                        // Fallback for broken images
+                        <div className="w-16 h-20 bg-gray-200 rounded flex items-center justify-center">
+                          <svg
+                            className="w-6 h-6 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
+                          </svg>
+                        </div>
+                      ) : (
+                        <Image
+                          src={item.image}
+                          alt={item.title}
+                          width={64}
+                          height={80}
+                          className="w-16 h-20 object-cover rounded"
+                          onError={() => handleImageError(item.id)}
+                          loading="lazy"
+                        />
+                      )}
                     </div>
 
                     {/* Product Details */}
@@ -185,7 +218,7 @@ export default function Cart({ isOpen, onClose }: CartProps) {
               <button
                 onClick={handleCheckout}
                 disabled={isCheckingOut}
-                className="w-full bg-[#853A75] text-white py-4 px-6 rounded-lg font-bold text-lg hover:bg-[#6a2e5d] transition-colors disabled:opacity-50 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-transform"
+                className="w-full bg-[#853A75] text-white py-4 px-6 rounded-lg font-bold text-lg hover:bg-[#6a2e5d] disabled:opacity-50 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-transform"
               >
                 {isCheckingOut ? "Processing..." : "Proceed to Checkout"}
               </button>

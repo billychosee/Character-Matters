@@ -66,8 +66,7 @@ export default function CheckoutPage() {
         status: "pending_payment",
         bank_reference: formData.bankReference,
         transfer_amount: parseFloat(formData.transferAmount),
-        created_at: new Date().toISOString(),
-        items: state.items,
+        order_items: JSON.stringify(state.items),
       };
 
       // Insert order into Supabase
@@ -79,19 +78,54 @@ export default function CheckoutPage() {
 
       if (error) {
         console.error("Error creating order:", error);
+        console.error("Order data sent:", orderData);
         alert("There was an error creating your order. Please try again.");
         return;
       }
 
       setOrderId(newOrderId);
 
+      // Send order confirmation email
+      const emailData = {
+        customerName: `${formData.firstName} ${formData.lastName}`,
+        customerEmail: formData.email,
+        orderId: newOrderId,
+        totalAmount: state.total,
+        orderItems: state.items,
+        customerAddress: `${formData.address}, ${formData.city}, ${formData.postalCode}, ${formData.country}`,
+      };
+
+      try {
+        console.log("📧 Preparing to send email via Resend to:", emailData.customerEmail);
+
+        // Send email via API route (which now uses Resend)
+        const emailResponse = await fetch('/api/send-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(emailData),
+        });
+
+        const emailResult = await emailResponse.json();
+
+        if (emailResponse.ok && emailResult.success) {
+          console.log("✅ Email sent successfully via Resend API");
+          alert("✅ Order created and email sent successfully!");
+        } else {
+          console.error("❌ Email sending failed:", emailResult);
+          alert("⚠️ Order created successfully! Email may not have been sent, but we'll process your order.");
+        }
+
+      } catch (emailError) {
+        console.error("💥 Email API error:", emailError);
+        
+        // Continue with order even if email fails
+        alert("⚠️ Order created successfully! Email may not have been sent, but we'll process your order.");
+      }
+
       // Clear cart after successful order creation
       clearCart();
-
-      // Show success message
-      alert(
-        "Order created successfully! You will receive a confirmation email shortly."
-      );
 
       // Redirect to thank you page after 2 seconds
       setTimeout(() => {
@@ -107,7 +141,7 @@ export default function CheckoutPage() {
 
   if (state.items.length === 0 && !orderId) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="min-h-screen bg-gray-50 pt-20 md:pt-24 py-8 px-4">
         <div className="max-w-2xl mx-auto text-center">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
             Your cart is empty
@@ -127,7 +161,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-gray-50 pt-20 md:pt-24 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">
           Checkout
@@ -167,8 +201,10 @@ export default function CheckoutPage() {
             </div>
 
             <div className="flex justify-between items-center text-lg font-semibold">
-              <span>Total:</span>
-              <span className="text-[#853A75]">${state.total.toFixed(2)}</span>
+              <span className="text-gray-900">Total:</span>
+              <span className="text-[#6a2e5d] font-bold text-xl">
+                ${state.total.toFixed(2)}
+              </span>
             </div>
           </div>
 
@@ -217,7 +253,7 @@ export default function CheckoutPage() {
                     value={formData.firstName}
                     onChange={handleInputChange}
                     required
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#853A75]"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#853A75] text-gray-900 placeholder-gray-600"
                   />
                   <input
                     type="text"
@@ -226,7 +262,7 @@ export default function CheckoutPage() {
                     value={formData.lastName}
                     onChange={handleInputChange}
                     required
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#853A75]"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#853A75] text-gray-900 placeholder-gray-600"
                   />
                 </div>
                 <input
@@ -236,7 +272,7 @@ export default function CheckoutPage() {
                   value={formData.email}
                   onChange={handleInputChange}
                   required
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#853A75] mt-4"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#853A75] text-gray-900 placeholder-gray-600 mt-4"
                 />
                 <input
                   type="tel"
@@ -245,7 +281,7 @@ export default function CheckoutPage() {
                   value={formData.phone}
                   onChange={handleInputChange}
                   required
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#853A75] mt-4"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#853A75] text-gray-900 placeholder-gray-600 mt-4"
                 />
               </div>
 
@@ -261,7 +297,7 @@ export default function CheckoutPage() {
                   onChange={handleInputChange}
                   required
                   rows={3}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#853A75]"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#853A75] text-gray-900 placeholder-gray-600"
                 />
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
                   <input
@@ -271,7 +307,7 @@ export default function CheckoutPage() {
                     value={formData.city}
                     onChange={handleInputChange}
                     required
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#853A75]"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#853A75] text-gray-900 placeholder-gray-600"
                   />
                   <input
                     type="text"
@@ -280,7 +316,7 @@ export default function CheckoutPage() {
                     value={formData.postalCode}
                     onChange={handleInputChange}
                     required
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#853A75]"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#853A75] text-gray-900 placeholder-gray-600"
                   />
                   <input
                     type="text"
@@ -289,7 +325,7 @@ export default function CheckoutPage() {
                     value={formData.country}
                     onChange={handleInputChange}
                     required
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#853A75]"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#853A75] text-gray-900 placeholder-gray-600"
                   />
                 </div>
               </div>
@@ -306,7 +342,7 @@ export default function CheckoutPage() {
                   value={formData.bankReference}
                   onChange={handleInputChange}
                   required
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#853A75] mb-4"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#853A75] text-gray-900 placeholder-gray-600 mb-4"
                 />
                 <input
                   type="number"
@@ -317,7 +353,7 @@ export default function CheckoutPage() {
                   required
                   step="0.01"
                   min={state.total}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#853A75]"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#853A75] text-gray-900 placeholder-gray-600"
                 />
               </div>
 
